@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  influxdb:
+    image: quay.io/influxdb/influxdb:2.0.0-alpha
+    command: --reporting-disabled
+    ports:
+      - '8083:8083'
+      - '8086:8086'
+      - '8090:8090'
+      - '9999:9999'
+    volumes:
+      - 'influxdb-data:/var/lib/influxdb'
+
+volumes:
+  influxdb-data:
