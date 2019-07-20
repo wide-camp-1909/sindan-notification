@@ -92,8 +92,12 @@ class InfluxDB2:
             if ok and self.debug:
                 print('InfluxDB2.write_health_status:', response)
 
-    def read_health_status(self):
-        pass
+    def read_health_status(self, layer, time_range='-1m'):
+        filterlst = [('_measurement', layer)]
+        ok, response = self.__read(self.bucket_health, time_range=time_range, filterlst=filterlst)
+        if ok and self.debug:
+            print('InfluxDB2.read_health_status:', response)
+        return self.__parse_csv_response(response.content.decode('utf-8'))
 
     def write_diagnosis_logs(self, layer, details):
         ok, response = self.__write(self.bucket_diagnosis, layer, details)
