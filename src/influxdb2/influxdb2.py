@@ -1,4 +1,6 @@
 import time
+import datetime
+import uuid
 import requests
 
 
@@ -8,14 +10,15 @@ class HealthStatus:
 
 
 class InfluxDB2:
-    def __init__(self, db=None, token=None, organization=None, bucket_diagnosis=None, bucket_health=None):
+    def __init__(self, db=None, token=None, organization=None, bucket_diagnosis=None, bucket_health=None, debug=False):
         self.db = db
         self.token = token
         self.organization = organization
         self.bucket_diagnosis = bucket_diagnosis
         self.bucket_health = bucket_health
+        self.debug = debug
 
-    def __write(self, bucket, data):
+    def __write(self, bucket, measurement, kvs):
         endpoint = 'http://{db}:9999/api/v2/write'.format(db=self.db)
         headers = {
             'Authorization': 'Token {token}'.format(token=self.token)
@@ -25,18 +28,23 @@ class InfluxDB2:
             ('bucket', bucket),
             ('precision', 'ms')
         )
-        data_with_ts = data + ' {timestamp}'.format(timestamp=int(time.time()*1000))
+        flat_kvs = ','.join(map(lambda kv: '{key}="{value}"'.format(key=kv[0], value=kv[1]), kvs))
+        timestamp = round(time.time() * 1000)
+        line_protocol = '{measurement} {flat_kvs}  {timestamp}'\
+            .format(measurement=measurement, flat_kvs=flat_kvs, timestamp=timestamp)
+        if self.debug:
+            print('InfluxDB2.__write:', line_protocol)
 
         retry = 3
         while retry > 0:
             try:
-                response = requests.post(endpoint, headers=headers, params=params, data=data_with_ts)
+                response = requests.post(endpoint, headers=headers, params=params, data=line_protocol)
             except requests.exceptions.Timeout:
                 retry -= 1
                 continue
             else:
-                return 0, response
-        return 1, None
+                return True, response
+        return False, None
 
     def __read(self, data):
         pass
@@ -47,15 +55,49 @@ class InfluxDB2:
     def read_health_status(self):
         pass
 
+    def write_diagnosis_logs(self, measurement, kvs):
+        ok, response = self.__write(self.bucket_diagnosis, measurement, kvs)
+        if ok and self.debug:
+            print('InfluxDB2.write_diagnosis_logs:', response)
+
     def read_diagnosis_logs(self, time_range='-5minute'):
         pass
 
 
+class Tester:
+    def __init__(self, client=None, **kwargs):
+        self.client = client
+        if self.client is None:
+            self.client = InfluxDB2(**kwargs)
+
+    @staticmethod
+    def __dummy_sindan_client():
+        return (
+            'dns',
+            (
+                ('log_group', 'IPv4'),
+                ('log_type', 'v4dnsqry_A_ipv4.sindan-net.com'),
+                ('log_campaign_uuid', str(uuid.uuid1())),
+                ('result', 'success'),
+                # ('target', ''),
+                # ('detail', 'totemonagaidata'),
+                ('occurred_at', datetime.datetime.now().strftime("%Y/%m/%d %T"))
+            )
+        )
+
+    def run(self, repeat=1):
+        while repeat > 0:
+            measurement, kvs = self.__dummy_sindan_client()
+            self.client.write_diagnosis_logs(measurement, kvs)
+            repeat -= 1
+
+
 if __name__ == '__main__':
     db = 'localhost'
-    token = 'eJdouF5UC7fuMuBn3Xce_tVB8LU0pwsrRBbMdGpzxEeOsVHo_YjiB7Y3k2FG0fUUMzyNFn9TDiaFppxW-rkYdw=='
+    # token = 'eJdouF5UC7fuMuBn3Xce_tVB8LU0pwsrRBbMdGpzxEeOsVHo_YjiB7Y3k2FG0fUUMzyNFn9TDiaFppxW-rkYdw=='
+    token = 'NFcpZKbLaaAMB7GbbOzGrBBVZ17_dp4_CG5yj_iPWj2ZhrVwVLkBXZA0iBFSrI_qLC2B08xHT0OjhTAhiTd28A=='
     org = 'lab'
     bucket = 'sindan'
-    data = 'mem,host=host1 used_percent=50.0'
 
-    client = InfluxDB2(db=db, token=token, organization=org)
+    client = InfluxDB2(db=db, token=token, organization=org, bucket_diagnosis=bucket, debug=True)
+    Tester(client=client).run(repeat=100)
