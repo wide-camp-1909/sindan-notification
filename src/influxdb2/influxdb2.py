@@ -27,7 +27,7 @@ class Client:
         return False, None
 
     @staticmethod
-    def __build_ifql(bucket, time_range, filterlst=None):
+    def __build_ifql(bucket, time_range, filterlst=None, limit=None):
         ifql = [
             'from(bucket: "{bucket}")'.format(bucket=bucket),
             'range(start:{range})'.format(range=time_range)
@@ -35,6 +35,8 @@ class Client:
         if filterlst is not None:
             for f in filterlst:
                 ifql.append('filter(fn: (r) => r.{key} == "{value}")'.format(key=f[0], value=f[1]))
+        if limit is not None:
+            ifql.append('limit(n:{limit})'.format(limit=limit))
         return ' |> '.join(ifql)
 
     @staticmethod
@@ -65,7 +67,7 @@ class Client:
             print('InfluxDB2.__write:', line_protocol)
         return self.__post_requests(endpoint, headers=headers, params=params, data=line_protocol)
 
-    def __read(self, bucket, time_range='-1m', filterlst=None):
+    def __read(self, bucket, time_range='-1m', filterlst=None, limit=None):
         endpoint = 'http://{db}:9999/api/v2/query'.format(db=self.db)
         headers = {
             'Authorization': 'Token {token}'.format(token=self.token),
@@ -75,21 +77,20 @@ class Client:
         params = [
             ('org', self.organization)
         ]
-        query = self.__build_ifql(bucket, time_range, filterlst)
+        query = self.__build_ifql(bucket, time_range, filterlst=filterlst, limit=limit)
         if self.debug:
             print('InfluxDB2.__read:', query)
         return self.__post_requests(endpoint, headers=headers, params=params, data=query)
 
     def write_health_status(self, statuslst):
         for layer, status in statuslst:
-            kvs = [('status', status[0]), ('last-notified', status[1])]
-            ok, response = self.__write(self.bucket_health, layer, kvs)
+            ok, response = self.__write(self.bucket_health, layer, ('status', status))
             if ok and self.debug:
                 print('InfluxDB2.write_health_status:', response)
 
-    def read_health_status(self, layer, time_range='-1m'):
+    def read_health_status(self, layer, time_range='-5m', limit=None):
         filterlst = [('_measurement', layer)]
-        ok, response = self.__read(self.bucket_health, time_range=time_range, filterlst=filterlst)
+        ok, response = self.__read(self.bucket_health, time_range, filterlst, limit)
         if ok and self.debug:
             print('InfluxDB2.read_health_status:', response)
         return self.__parse_csv_response(response.content.decode('utf-8'))
@@ -99,13 +100,13 @@ class Client:
         if ok and self.debug:
             print('InfluxDB2.write_diagnosis_logs:', response)
 
-    def read_diagnosis_logs(self, layer, time_range='-1m', fieldlst=None, valuelst=None):
+    def read_diagnosis_logs(self, layer, time_range='-5m', fieldlst=None, valuelst=None, limit=None):
         filterlst = [('_measurement', layer)]
         if fieldlst is not None:
             filterlst.extend([('_field', field) for field in fieldlst])
         if valuelst is not None:
             filterlst.extend([('_value', val) for val in valuelst])
-        ok, response = self.__read(self.bucket_diagnosis, time_range=time_range, filterlst=filterlst)
+        ok, response = self.__read(self.bucket_diagnosis, time_range, filterlst, limit)
         if ok and self.debug:
             print('InfluxDB2.read_diagnosis_logs:', response)
         return self.__parse_csv_response(response.content.decode('utf-8'))
@@ -146,8 +147,8 @@ if __name__ == '__main__':
     org = 'lab'
     bucket = 'sindan'
 
-    client = Client(db=db, token=token, organization=org, bucket_diagnosis=bucket, debug=True)
+    client = Client(db, token, org, bucket_diagnosis=bucket, debug=True)
     Tester(client=client).run(repeat=3)
     # res = client.read_diagnosis_logs('dns', time_range='-1m')
-    res = client.read_diagnosis_logs('dns', time_range='-1m', fieldlst=['result'], valuelst=['fail'])
+    res = client.read_diagnosis_logs('dns', time_range='-10m', fieldlst=['result'], valuelst=['success'], limit=1)
     print(res)

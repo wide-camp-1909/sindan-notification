@@ -3,8 +3,8 @@ import time
 
 
 class HealthStatus:
-    GREEN = 1
-    RED = 0
+    GREEN = 'GREEN'
+    RED = 'RED'
 
 
 class Watch:
@@ -21,8 +21,31 @@ class Watch:
     def __update_health_status(self):
         now_ts = round(time.time() * 1000)
         time_range = '-{period}'.format(period=self.watch_period)
+        statuslst = []
         for layer in ('datalink', 'interface', 'localnet', 'globalnet', 'dns', 'web'):
-            pass
+            health_record = self.influxdb_cli.read_health_status(layer, time_range, limit=1)
+            last_st = health_record[0]['status']
+            result_failed = self.influxdb_cli.read_diagnosis_logs(layer, time_range, ['result'], ['fail'])
+            current_st = None
+
+            # 通知はメッセージをまとめたいのでバッチ処理する
+            if len(result_failed) < self.threshold:
+                current_st = HealthStatus.GREEN
+                if last_st == HealthStatus.RED:
+                    self.__recover_notification()
+            else:
+                # キャンペーンUUIDと計測タイプのリストを取得，まとめてSlackに投稿
+                current_st = HealthStatus.RED
+                if last_st == HealthStatus.GREEN:
+                    self.__down_notification()
+            statuslst.append((layer, current_st))
+        self.influxdb_cli.write_health_status(statuslst)
+
+    def __recover_notification(self):
+        pass
+
+    def __down_notification(self):
+        pass
 
     def run(self):
         """ MEMO
