@@ -1,7 +1,7 @@
-import time
 import datetime
-import uuid
 import requests
+import time
+import uuid
 
 
 class HealthStatus:
@@ -41,6 +41,16 @@ class InfluxDB2:
             for f in filterlst:
                 ifql.append('filter(fn: (r) => r.{key} == "{value}")'.format(key=f[0], value=f[1]))
         return ' |> '.join(ifql)
+
+    @staticmethod
+    def __parse_csv_response(content):
+        csv = [row.split(',') for row in content.split('\r\n')]
+        dictlst = []
+        for row in csv[1:]:
+            dic = {csv[0][i]: str(data) for i, data in enumerate(row) if csv[0][i] != ''}
+            if len(dic) > 0:
+                dictlst.append(dic)
+        return dictlst
 
     def __write(self, bucket, measurement, kvs):
         endpoint = 'http://{db}:9999/api/v2/write'.format(db=self.db)
@@ -97,7 +107,7 @@ class InfluxDB2:
         ok, response = self.__read(self.bucket_diagnosis, time_range=time_range, filterlst=filterlst)
         if ok and self.debug:
             print('InfluxDB2.read_diagnosis_logs:', response)
-        print(response.content)
+        return self.__parse_csv_response(response.content.decode('utf-8'))
 
 
 class Tester:
@@ -137,4 +147,5 @@ if __name__ == '__main__':
 
     client = InfluxDB2(db=db, token=token, organization=org, bucket_diagnosis=bucket, debug=True)
     Tester(client=client).run(repeat=3)
-    client.read_diagnosis_logs('dns', time_range='-1m', attrlst=['result'])
+    res = client.read_diagnosis_logs('dns', time_range='-1m', attrlst=['result'])
+    print(res)
