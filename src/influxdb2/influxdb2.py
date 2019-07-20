@@ -31,16 +31,27 @@ class InfluxDB2:
                 return True, response
         return False, None
 
+    @staticmethod
+    def __build_ifql(bucket, time_range, filterlst=None):
+        ifql = [
+            'from(bucket: "{bucket}")'.format(bucket=bucket),
+            'range(start:{range})'.format(range=time_range)
+        ]
+        if filterlst is not None:
+            for f in filterlst:
+                ifql.append('filter(fn: (r) => r.{key} == "{value}")'.format(key=f[0], value=f[1]))
+        return ' |> '.join(ifql)
+
     def __write(self, bucket, measurement, kvs):
         endpoint = 'http://{db}:9999/api/v2/write'.format(db=self.db)
         headers = {
             'Authorization': 'Token {token}'.format(token=self.token)
         }
-        params = (
+        params = [
             ('org', self.organization),
             ('bucket', bucket),
             ('precision', 'ms')
-        )
+        ]
         flat_kvs = ','.join(map(lambda kv: '{key}="{value}"'.format(key=kv[0], value=kv[1]), kvs))
         timestamp = round(time.time() * 1000)
         line_protocol = '{measurement} {flat_kvs}  {timestamp}'\
@@ -49,20 +60,25 @@ class InfluxDB2:
             print('InfluxDB2.__write:', line_protocol)
         return self.__post_requests(endpoint, headers=headers, params=params, data=line_protocol)
 
-    def __read(self, bucket, time_range='-5minute', filter=None):
+    def __read(self, bucket, time_range='-1m', filterlst=None):
         endpoint = 'http://{db}:9999/api/v2/query'.format(db=self.db)
         headers = {
             'Authorization': 'Token {token}'.format(token=self.token),
             'Accept': 'application/csv',
             'Content-Type': 'application/vnd.flux'
         }
-        params = (
+        params = [
             ('org', self.organization)
-        )
+        ]
+        query = self.__build_ifql(bucket, time_range, filterlst)
+        if self.debug:
+            print('InfluxDB2.__read:', query)
+        return self.__post_requests(endpoint, headers=headers, params=params, data=query)
 
     def write_health_status(self, statuslst):
         for layer, status in statuslst:
-            ok, response = self.__write(self.bucket_health, layer, ('status', status))
+            kvs = [('status', status[0]), ('last-notified', status[1])]
+            ok, response = self.__write(self.bucket_health, layer, kvs)
             if ok and self.debug:
                 print('InfluxDB2.write_health_status:', response)
 
@@ -74,8 +90,14 @@ class InfluxDB2:
         if ok and self.debug:
             print('InfluxDB2.write_diagnosis_logs:', response)
 
-    def read_diagnosis_logs(self, time_range='-5minute'):
-        pass
+    def read_diagnosis_logs(self, layer, time_range='-1m', attrlst=None):
+        filterlst = [('_measurement', layer)]
+        if attrlst is not None:
+            filterlst.extend([('_field', attr) for attr in attrlst])
+        ok, response = self.__read(self.bucket_diagnosis, time_range=time_range, filterlst=filterlst)
+        if ok and self.debug:
+            print('InfluxDB2.read_diagnosis_logs:', response)
+        print(response.content)
 
 
 class Tester:
@@ -88,7 +110,7 @@ class Tester:
     def __dummy_sindan_client():
         return (
             'dns',
-            (
+            [
                 ('log_group', 'IPv4'),
                 ('log_type', 'v4dnsqry_A_ipv4.sindan-net.com'),
                 ('log_campaign_uuid', str(uuid.uuid1())),
@@ -96,7 +118,7 @@ class Tester:
                 # ('target', ''),
                 # ('detail', 'totemonagaidata'),
                 ('occurred_at', datetime.datetime.now().strftime("%Y/%m/%d %T"))
-            )
+            ]
         )
 
     def run(self, repeat=1):
@@ -114,4 +136,5 @@ if __name__ == '__main__':
     bucket = 'sindan'
 
     client = InfluxDB2(db=db, token=token, organization=org, bucket_diagnosis=bucket, debug=True)
-    # Tester(client=client).run(repeat=100)
+    Tester(client=client).run(repeat=3)
+    client.read_diagnosis_logs('dns', time_range='-1m', attrlst=['result'])
