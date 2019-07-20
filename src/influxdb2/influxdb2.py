@@ -18,6 +18,19 @@ class InfluxDB2:
         self.bucket_health = bucket_health
         self.debug = debug
 
+    @staticmethod
+    def __post_requests(endpoint, **kwargs):
+        retry = 3
+        while retry > 0:
+            try:
+                response = requests.post(endpoint, **kwargs)
+            except requests.exceptions.Timeout:
+                retry -= 1
+                continue
+            else:
+                return True, response
+        return False, None
+
     def __write(self, bucket, measurement, kvs):
         endpoint = 'http://{db}:9999/api/v2/write'.format(db=self.db)
         headers = {
@@ -34,29 +47,30 @@ class InfluxDB2:
             .format(measurement=measurement, flat_kvs=flat_kvs, timestamp=timestamp)
         if self.debug:
             print('InfluxDB2.__write:', line_protocol)
+        return self.__post_requests(endpoint, headers=headers, params=params, data=line_protocol)
 
-        retry = 3
-        while retry > 0:
-            try:
-                response = requests.post(endpoint, headers=headers, params=params, data=line_protocol)
-            except requests.exceptions.Timeout:
-                retry -= 1
-                continue
-            else:
-                return True, response
-        return False, None
+    def __read(self, bucket, time_range='-5minute', filter=None):
+        endpoint = 'http://{db}:9999/api/v2/query'.format(db=self.db)
+        headers = {
+            'Authorization': 'Token {token}'.format(token=self.token),
+            'Accept': 'application/csv',
+            'Content-Type': 'application/vnd.flux'
+        }
+        params = (
+            ('org', self.organization)
+        )
 
-    def __read(self, data):
-        pass
-
-    def write_health_status(self):
-        pass
+    def write_health_status(self, statuslst):
+        for layer, status in statuslst:
+            ok, response = self.__write(self.bucket_health, layer, ('status', status))
+            if ok and self.debug:
+                print('InfluxDB2.write_health_status:', response)
 
     def read_health_status(self):
         pass
 
-    def write_diagnosis_logs(self, measurement, kvs):
-        ok, response = self.__write(self.bucket_diagnosis, measurement, kvs)
+    def write_diagnosis_logs(self, layer, details):
+        ok, response = self.__write(self.bucket_diagnosis, layer, details)
         if ok and self.debug:
             print('InfluxDB2.write_diagnosis_logs:', response)
 
@@ -87,8 +101,8 @@ class Tester:
 
     def run(self, repeat=1):
         while repeat > 0:
-            measurement, kvs = self.__dummy_sindan_client()
-            self.client.write_diagnosis_logs(measurement, kvs)
+            layer, details = self.__dummy_sindan_client()
+            self.client.write_diagnosis_logs(layer, details)
             repeat -= 1
 
 
@@ -100,4 +114,4 @@ if __name__ == '__main__':
     bucket = 'sindan'
 
     client = InfluxDB2(db=db, token=token, organization=org, bucket_diagnosis=bucket, debug=True)
-    Tester(client=client).run(repeat=100)
+    # Tester(client=client).run(repeat=100)
