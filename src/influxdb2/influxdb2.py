@@ -4,12 +4,7 @@ import time
 import uuid
 
 
-class HealthStatus:
-    GREEN = 0
-    RED = 1
-
-
-class InfluxDB2:
+class Client:
     def __init__(self, db=None, token=None, organization=None, bucket_diagnosis=None, bucket_health=None, debug=False):
         self.db = db
         self.token = token
@@ -104,10 +99,12 @@ class InfluxDB2:
         if ok and self.debug:
             print('InfluxDB2.write_diagnosis_logs:', response)
 
-    def read_diagnosis_logs(self, layer, time_range='-1m', attrlst=None):
+    def read_diagnosis_logs(self, layer, time_range='-1m', fieldlst=None, valuelst=None):
         filterlst = [('_measurement', layer)]
-        if attrlst is not None:
-            filterlst.extend([('_field', attr) for attr in attrlst])
+        if fieldlst is not None:
+            filterlst.extend([('_field', field) for field in fieldlst])
+        if valuelst is not None:
+            filterlst.extend([('_value', val) for val in valuelst])
         ok, response = self.__read(self.bucket_diagnosis, time_range=time_range, filterlst=filterlst)
         if ok and self.debug:
             print('InfluxDB2.read_diagnosis_logs:', response)
@@ -118,7 +115,7 @@ class Tester:
     def __init__(self, client=None, **kwargs):
         self.client = client
         if self.client is None:
-            self.client = InfluxDB2(**kwargs)
+            self.client = Client(**kwargs)
 
     @staticmethod
     def __dummy_sindan_client():
@@ -149,7 +146,8 @@ if __name__ == '__main__':
     org = 'lab'
     bucket = 'sindan'
 
-    client = InfluxDB2(db=db, token=token, organization=org, bucket_diagnosis=bucket, debug=True)
+    client = Client(db=db, token=token, organization=org, bucket_diagnosis=bucket, debug=True)
     Tester(client=client).run(repeat=3)
-    res = client.read_diagnosis_logs('dns', time_range='-1m', attrlst=['result'])
+    # res = client.read_diagnosis_logs('dns', time_range='-1m')
+    res = client.read_diagnosis_logs('dns', time_range='-1m', fieldlst=['result'], valuelst=['fail'])
     print(res)
