@@ -100,12 +100,14 @@ class Client:
         if ok and self.debug:
             print('InfluxDB2.write_diagnosis_logs:', response)
 
-    def read_diagnosis_logs(self, layer, time_range='-5m', fieldlst=None, valuelst=None, limit=None):
+    def read_diagnosis_logs(self, layer, time_range='-5m', fieldlst=None, valuelst=None, ts=None, limit=None):
         filterlst = [('_measurement', layer)]
         if fieldlst is not None:
             filterlst.extend([('_field', field) for field in fieldlst])
         if valuelst is not None:
             filterlst.extend([('_value', val) for val in valuelst])
+        if ts is not None:
+            filterlst.append(('_time', ts))
         ok, response = self.__read(self.bucket_diagnosis, time_range, filterlst, limit)
         if ok and self.debug:
             print('InfluxDB2.read_diagnosis_logs:', response)

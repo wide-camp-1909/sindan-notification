@@ -1,3 +1,4 @@
+from consts import *
 import influxdb2
 import time
 
@@ -27,9 +28,10 @@ class Watch:
         rt = []
         statuslst = []
         time_range = '-{period}'.format(period=self.watch_period)
-        for layer in ['datalink', 'interface', 'localnet', 'globalnet', 'dns', 'web']:
+        for layer in LayerType.TypeList:
             last_st = self.influxdb_cli.read_health_status(layer, time_range, limit=1)[0]['status']
-            result_failed = self.influxdb_cli.read_diagnosis_logs(layer, time_range, ['result'], ['fail'])
+            result_failed = self.influxdb_cli.read_diagnosis_logs(layer, time_range,
+                                                                  [DiagnosisKey.RESULT], [ResultType.FAIL])
             if len(result_failed) < self.threshold:
                 current_st = HealthStatus.GREEN
                 if last_st == HealthStatus.RED:
@@ -49,19 +51,36 @@ class Watch:
         self.influxdb_cli.write_health_status(statuslst)
         return rt
 
-    def __notification_on_failure(self, alertlst):
-        if not alertlst:
+    def __notification_on_failure(self, eventlst):
+        if not eventlst:
             return
+        alertlst = []
+        for event in eventlst:
+            layer = event['layer']
+            alert = []
+            for ts in event['ts']:
+                uuid = self.influxdb_cli.read_diagnosis_logs(layer, fieldlst=[DiagnosisKey.UUID], ts=ts)
+                dtype = self.influxdb_cli.read_diagnosis_logs(layer, fieldlst=[DiagnosisKey.TYPE], ts=ts)
+                desc = DESCRIPTION[dtype]
+                alert.append({
+                    'ts': ts,
+                    'uuid': uuid,
+                    'type': dtype,
+                    'desc': desc
+                })
+            alertlst.append([layer, alert])
+        # call slack method here
 
-    def __notification_on_recover(self, alertlst):
-        if not alertlst:
+    def __notification_on_recover(self, eventlst):
+        if not eventlst:
             return
+        # call slack method here
 
     def run(self):
         while True:
             rt = self.__update_health_status()
             if not rt:
                 continue
-            self.__notification_on_failure([alert for alert in rt if alert['trigger'] == AlertTrigger.FAILURE])
-            self.__notification_on_recover([alert for alert in rt if alert['trigger'] == AlertTrigger.RECOVER])
+            self.__notification_on_failure([event for event in rt if event['trigger'] == AlertTrigger.FAILURE])
+            self.__notification_on_recover([event for event in rt if event['trigger'] == AlertTrigger.RECOVER])
             time.sleep(self.watch_interval)
