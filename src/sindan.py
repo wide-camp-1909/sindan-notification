@@ -1,5 +1,6 @@
 from consts import *
 import influxdb2
+import slack
 import time
 
 
@@ -18,10 +19,9 @@ class Watch:
         self.watch_period = watch_params['period']
         self.watch_interval = watch_params['interval']
         self.threshold = watch_params['threshold']
-        self.influxdb_cli = influxdb2.Client(
-            db=db_params['db'], token=db_params['token'], organization=db_params['organization'],
-            bucket_diagnosis=db_params['bucket_diagnosis'], bucket_health=db_params['bucket_health'], debug=debug)
-        self.slack_cli = None
+        self.influxdb_cli = influxdb2.Client(db_params['db'], db_params['token'], db_params['organization'],
+                                             db_params['bucket_diagnosis'], db_params['bucket_health'], debug=debug)
+        self.slack_cli = slack.Client(slack_params['webhook_url'], slack_params['channel'], debug=False)
         self.debug = debug
 
     def __update_health_status(self):

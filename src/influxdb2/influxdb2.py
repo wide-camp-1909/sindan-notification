@@ -5,7 +5,7 @@ import uuid
 
 
 class Client:
-    def __init__(self, db=None, token=None, organization=None, bucket_diagnosis=None, bucket_health=None, debug=False):
+    def __init__(self, db, token, organization, bucket_diagnosis, bucket_health, debug=False):
         self.db = db
         self.token = token
         self.organization = organization
@@ -64,7 +64,7 @@ class Client:
         line_protocol = '{measurement} {flat_kvs}  {timestamp}'\
             .format(measurement=measurement, flat_kvs=flat_kvs, timestamp=timestamp)
         if self.debug:
-            print('InfluxDB2.__write:', line_protocol)
+            print('InfluxDB2.Client.__write:', line_protocol)
         return self.__post_requests(endpoint, headers=headers, params=params, data=line_protocol)
 
     def __read(self, bucket, time_range='-1m', filterlst=None, limit=None):
@@ -79,26 +79,26 @@ class Client:
         ]
         query = self.__build_ifql(bucket, time_range, filterlst=filterlst, limit=limit)
         if self.debug:
-            print('InfluxDB2.__read:', query)
+            print('InfluxDB2.Client.__read:', query)
         return self.__post_requests(endpoint, headers=headers, params=params, data=query)
 
     def write_health_status(self, statuslst):
         for layer, status in statuslst:
             ok, response = self.__write(self.bucket_health, layer, ('status', status))
             if ok and self.debug:
-                print('InfluxDB2.write_health_status:', response)
+                print('InfluxDB2.Client.write_health_status:', response)
 
     def read_health_status(self, layer, time_range='-5m', limit=None):
         filterlst = [('_measurement', layer)]
         ok, response = self.__read(self.bucket_health, time_range, filterlst, limit)
         if ok and self.debug:
-            print('InfluxDB2.read_health_status:', response)
+            print('InfluxDB2.Client.read_health_status:', response)
         return self.__parse_csv_response(response.content.decode('utf-8'))
 
     def write_diagnosis_logs(self, layer, details):
         ok, response = self.__write(self.bucket_diagnosis, layer, details)
         if ok and self.debug:
-            print('InfluxDB2.write_diagnosis_logs:', response)
+            print('InfluxDB2.Client.write_diagnosis_logs:', response)
 
     def read_diagnosis_logs(self, layer, time_range='-5m', fieldlst=None, valuelst=None, ts=None, limit=None):
         filterlst = [('_measurement', layer)]
@@ -110,7 +110,7 @@ class Client:
             filterlst.append(('_time', ts))
         ok, response = self.__read(self.bucket_diagnosis, time_range, filterlst, limit)
         if ok and self.debug:
-            print('InfluxDB2.read_diagnosis_logs:', response)
+            print('InfluxDB2.Client.read_diagnosis_logs:', response)
         return self.__parse_csv_response(response.content.decode('utf-8'))
 
 
