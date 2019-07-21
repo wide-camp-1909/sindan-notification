@@ -5,7 +5,7 @@ import uuid
 
 
 class Client:
-    def __init__(self, db=None, token=None, organization=None, bucket_diagnosis=None, bucket_health=None, debug=False):
+    def __init__(self, db, token, organization, bucket_diagnosis, bucket_health, debug=False):
         self.db = db
         self.token = token
         self.organization = organization
