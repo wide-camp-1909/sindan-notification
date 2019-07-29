@@ -70,7 +70,7 @@ class Client:
                         'short': True
                     },
                     {
-                        'title': 'V4.DNS.DU_AAAA',
+                        'title': 'V4.DNS.DUAL_AAAA',
                         'value': '2019/07/21 22:06:26\n'
                                  '`40d995c2`',
                         'short': True
@@ -103,7 +103,7 @@ class Client:
                 'ts': '{}'.format(int(time.time())),
             },
             {
-                'text': '詳細はログデータベースを参照してください',
+                'pretext': '詳細はログデータベースを参照してください',
                 'color': '#000000',
                 'actions': [
                     {
