@@ -32,20 +32,43 @@ services:
       - .fluent.conf:/fluentd/etc/fluent.conf
       - fluentd-data:/fluentd/log
     labels:
-      com.sindan-net.description: "Receive logs from sindan-clients and forward them to Python via HTTP"
+      com.sindan-net.description: "Receive logs from sindan-clients and forward them to InfluxDB proxy via HTTP"
 
   influxdb:
     image: quay.io/influxdb/influxdb:2.0.0-alpha
     hostname: sindan-influxdb
     restart: always
+    expose:
+      - '8083'
+      - '8086'
+      - '8090'
     ports:
-      - '8083:8083'
-      - '8086:8086'
-      - '8090:8090'
       - '9999:9999'
+    healthcheck:
+      << : *default-healthcheck
+      test: curl -I -f http://127.0.0.1:9999 || exit 1
+    logging: *default-logging
     command: --reporting-disabled
     volumes:
       - 'influxdb-data:/var/lib/influxdb'
+    labels:
+      com.sindan-net.description: "Store diagnosis logs for sindan-notification"
+
+  proxy:
+    image: python
+    hostname: sindan-influxdb-proxy
+    restart: always
+    ports:
+      - '8000:8000'
+    healthcheck:
+      << : *default-healthcheck
+      test: curl -f http://127.0.0.1:8000 || exit 1
+    logging: *default-logging
+    command: python /app/proxy.py
+    volumes:
+      - ./src:/app
+    labels:
+      com.sindan-net.description: "Receive raw logs via HTTP and forward processed logs to InfluxDB"
 
 volumes:
   fluentd-data:
