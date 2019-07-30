@@ -1,4 +1,21 @@
 """
+Format Definitions
+"""
+
+"""
+Campaign Logs
+"""
+
+class CampaignKey:
+    UUID    = "log_campaign_uuid"
+    MAC     = "mac_addr"
+    OS      = "os"
+    SSID    = "ssid"
+    VERSION = "version"
+    OCCURR  = 'occurred_at'
+
+
+"""
 Diagnosis Logs
 """
 

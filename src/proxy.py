@@ -1,4 +1,5 @@
 from config import Config
+from consts import CampaignKey, DiagnosisKey
 import influxdb2
 from socketserver import ThreadingMixIn
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -48,10 +49,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         return
 
     def __diagnosis(self, jbody):
-        # process raw data
-        print(self.influxdb_cli)
         print(jbody)  # debug
-        pass
+        print(self.influxdb_cli)
+        self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], {
+            DiagnosisKey.RESULT: jbody[DiagnosisKey.RESULT]
+        })
 
     def __campaign(self, jbody):
         # process raw data
