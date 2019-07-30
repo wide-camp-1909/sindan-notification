@@ -20,7 +20,7 @@ services:
     hostname: sindan-fluentd
     restart: always
     depends_on:
-      - infuxdb
+      - influxdb
     ports:
       - "8080:8080"
       - "8888:8888"

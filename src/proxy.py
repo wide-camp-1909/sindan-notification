@@ -60,9 +60,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 class ProxyServer:
-    def __init__(self, ip='0.0.0.0', port=8081):
+    def __init__(self, ip=Config.Proxy_IP, port=Config.Proxy_Port):
         ThreadingHTTPServer((ip, port), RequestHandler).serve_forever()
 
 
 if __name__ == '__main__':
-    ProxyServer(ip=Config.Proxy_IP, port=Config.Proxy_Port)
+    ProxyServer()
