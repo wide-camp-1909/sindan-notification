@@ -13,13 +13,13 @@ class ConfigParser:
         # self.Proxy_IP = content['proxy']['ip']
         # self.Proxy_Port = content['proxy']['port']
         self.Proxy_IP = '0.0.0.0'
-        self.Proxy_Port = '8000'
+        self.Proxy_Port = 8000
 
         self.DB_Host = content['influxdb']['host']
         self.DB_Organization = content['influxdb']['organization']
         self.DB_Token = content['influxdb']['token']
-        self.DB_DiagnosisBucket = content['influxdb']['diagnosis_bucket']
-        self.DB_HealthCheckBucket = content['influxdb']['healthcheck_bucket']
+        self.DB_DiagnosisBucket = content['influxdb']['bucket']['diagnosis']
+        self.DB_HealthCheckBucket = content['influxdb']['bucket']['healthcheck']
 
 
 Config = ConfigParser()

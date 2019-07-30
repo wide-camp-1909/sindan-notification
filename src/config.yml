@@ -3,5 +3,6 @@ influxdb:
   host: "127.0.0.1"
   organization: "lab"
   token: "FmbvLjRjCy5e3mU8B1ckck5lqNbY_tkMhRr__urDgKAfFcQ6GOwIZ8U1-CgivuRHpAN1Nf7c95PwsmKZg-FwVQ=="
-  diagnosis_bucket: "sindan"
-  healthcheck_bucket: "health"
+  bucket:
+    diagnosis: "sindan"
+    healthcheck: "health"
