@@ -1,0 +1,10 @@
+proxy:
+  ip: "127.0.0.1"
+  port: "8080"
+
+influxdb:
+  host: "influxdb"
+  organization: "lab"
+  token: ""
+  diagnosis_bucket: "sindan"
+  healthcheck_bucket: "health"
