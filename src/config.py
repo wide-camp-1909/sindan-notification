@@ -21,6 +21,13 @@ class ConfigParser:
         self.DB_DiagnosisBucket = content['influxdb']['bucket']['diagnosis']
         self.DB_HealthCheckBucket = content['influxdb']['bucket']['healthcheck']
 
+        self.Slack_WebhookURL = content['slack']['webhookurl']
+        self.Slack_Channel = content['slack']['channel']
+
+        self.WatchInterval = content['notifier']['watch']['interval']
+        self.WatchPeriod = content['notifier']['watch']['period']
+        self.Threshold = content['notifier']['watch']['threshold']
+
 
 # Config = ConfigParser('./config.yml')
 Config = ConfigParser(CONFIG_FILE)
