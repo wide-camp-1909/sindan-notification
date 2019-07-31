@@ -49,15 +49,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         return
 
     def __diagnosis(self, jbody):
-        print(jbody)  # debug
-        print(self.influxdb_cli)
-        self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], {
-            k: jbody[k] for k in [DiagnosisKey.UUID, DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.OCCURR]
-        })
+        self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], [
+            (k, jbody[k]) for k in [DiagnosisKey.UUID, DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.OCCURR]
+        ])
 
     def __campaign(self, jbody):
-        # process raw data
-        print(jbody)  # debug
         pass
 
 

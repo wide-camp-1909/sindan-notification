@@ -22,14 +22,14 @@ services:
     depends_on:
       - influxdb
     ports:
-      - "8080:8080"
-      - "8888:8888"
+      - "18080:8080"
+      - "18888:8888"
     healthcheck:
       << : *default-healthcheck
       test: curl -f http://127.0.0.1:8080 || exit 1
     logging: *default-logging
     volumes:
-      - .fluent.conf:/fluentd/etc/fluent.conf
+      - ./fluent.conf:/fluentd/etc/fluent.conf
       - fluentd-data:/fluentd/log
     labels:
       com.sindan-net.description: "Receive logs from sindan-clients and forward them to InfluxDB proxy via HTTP"

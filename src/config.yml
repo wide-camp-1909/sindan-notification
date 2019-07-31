@@ -2,7 +2,7 @@ influxdb:
   # host: "influxdb"
   host: "127.0.0.1"
   organization: "lab"
-  token: "FmbvLjRjCy5e3mU8B1ckck5lqNbY_tkMhRr__urDgKAfFcQ6GOwIZ8U1-CgivuRHpAN1Nf7c95PwsmKZg-FwVQ=="
+  token: "3tb1UMSkEQty6PNQEQ1oYZy_lSg1Z19zGrPRq3ZrsV90yrYqZPVgaaBRbQwLqM7K5rAZcQPeYCW7nbys-1FGCA=="
   bucket:
     diagnosis: "sindan"
     healthcheck: "health"
