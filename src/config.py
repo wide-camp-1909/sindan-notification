@@ -24,9 +24,9 @@ class ConfigParser:
         self.Slack_WebhookURL = content['slack']['webhookurl']
         self.Slack_Channel = content['slack']['channel']
 
-        self.WatchInterval = content['notifier']['watch']['interval']
-        self.WatchPeriod = content['notifier']['watch']['period']
-        self.Threshold = content['notifier']['watch']['threshold']
+        self.WatchInterval = content['watch']['interval']
+        self.WatchPeriod = content['watch']['period']
+        self.Threshold = content['watch']['threshold']
 
 
 # Config = ConfigParser('./config.yml')

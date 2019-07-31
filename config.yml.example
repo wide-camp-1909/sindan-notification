@@ -1,0 +1,16 @@
+watch:
+  interval: 120  # seconds
+  period: 30m    # 30 minutes
+  threshold: 3   # 3 times
+
+influxdb:
+  host: "influxdb"  # no need to change
+  organization: "lab"
+  token: ""
+  bucket:
+    diagnosis: "sindan"
+    healthcheck: "health"
+
+slack:
+  webhookurl: ""
+  channel: "sindan"
