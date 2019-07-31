@@ -82,9 +82,9 @@ class LogType:
 
 
 class ResultType:
-    FAIL    = 'fail'
-    INFO    = 'information'
-    SUCCESS = 'success'
+    FAIL    = '0'
+    SUCCESS = '1'
+    INFO    = '10'
 
 
 DESCRIPTION = {
