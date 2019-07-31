@@ -58,7 +58,8 @@ services:
     image: python
     hostname: sindan-influxdb-proxy
     restart: always
-    ports:
+    # Fix port -> expose (no need to exposed to host)
+    port:
       - '8000:8000'
     healthcheck:
       << : *default-healthcheck

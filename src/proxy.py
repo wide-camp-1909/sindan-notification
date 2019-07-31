@@ -1,5 +1,5 @@
 from config import Config
-from consts import CampaignKey, DiagnosisKey
+from consts import CampaignKey, DiagnosisKey, ResultType
 import influxdb2
 from socketserver import ThreadingMixIn
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -49,12 +49,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         return
 
     def __diagnosis(self, jbody):
+        if jbody[DiagnosisKey.RESULT] == ResultType.INFO:
+            return
         self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], [
             (k, jbody[k]) for k in [DiagnosisKey.UUID, DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.OCCURR]
         ])
+        return
 
     def __campaign(self, jbody):
-        pass
+        return
 
 
 class ProxyServer:
