@@ -62,8 +62,6 @@ services:
     restart: always
     expose:
       - "8000"
-    # port:
-    #   - '8000:8000'
     secrets:
       - config
     environment:
