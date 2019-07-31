@@ -1,6 +1,5 @@
 influxdb:
-  # host: "influxdb"
-  host: "127.0.0.1"
+  host: "influxdb"
   organization: "lab"
   token: "3tb1UMSkEQty6PNQEQ1oYZy_lSg1Z19zGrPRq3ZrsV90yrYqZPVgaaBRbQwLqM7K5rAZcQPeYCW7nbys-1FGCA=="
   bucket:
