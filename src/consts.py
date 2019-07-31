@@ -25,6 +25,7 @@ class DiagnosisKey:
     TYPE   = 'log_type'
     UUID   = 'log_campaign_uuid'
     RESULT = 'result'
+    TARGET = 'target'
     DETAIL = 'detail'
     OCCURR = 'occurred_at'
 

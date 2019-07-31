@@ -52,7 +52,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         print(jbody)  # debug
         print(self.influxdb_cli)
         self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], {
-            DiagnosisKey.RESULT: jbody[DiagnosisKey.RESULT]
+            k: jbody[k] for k in [DiagnosisKey.UUID, DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.OCCURR]
         })
 
     def __campaign(self, jbody):
