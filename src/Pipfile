@@ -11,3 +11,7 @@ pyyaml = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+notifyer = "python notifyer.py"
+proxy = "python proxy.py"

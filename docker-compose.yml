@@ -70,7 +70,7 @@ services:
       << : *default-healthcheck
       test: curl -f http://127.0.0.1:8000 || exit 1
     logging: *default-logging
-    command: python /app/proxy.py
+    command: pipenv run proxy
     volumes:
       - ./src:/app
     labels:

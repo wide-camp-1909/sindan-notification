@@ -8,4 +8,4 @@ COPY ./src .
 RUN pip install pipenv \
  && pipenv install --system
 
-CMD ["python", "./notifier.py"]
+CMD ["pipenv", "run", "notifyer"]
