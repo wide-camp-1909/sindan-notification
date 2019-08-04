@@ -57,6 +57,9 @@ class Client:
 
         return self.__post(attachments, text=text)
 
+    def send_recover_message(self, events):
+        pass
+
 
 if __name__ == '__main__':
     # Must to re-generate WebHook URL after debugging
