@@ -15,6 +15,8 @@ class ConfigParser:
             except yaml.YAMLError as e:
                 print(e)
 
+        self.Version = content['version']
+
         self.DB_Host = content['influxdb']['host']
         self.DB_Organization = content['influxdb']['organization']
         self.DB_Token = content['influxdb']['token']
@@ -32,5 +34,5 @@ class ConfigParser:
         self.InfluxDB_URL = content['slack']['urls']['influxdb']
 
 
-# Config = ConfigParser('./config.yml')
-Config = ConfigParser(CONFIG_FILE)
+Config = ConfigParser('../config.yml')  # development
+# Config = ConfigParser(CONFIG_FILE)
