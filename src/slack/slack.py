@@ -32,46 +32,36 @@ class Client:
                 return True, response
         return False, None
 
-    def send_failure_message(self, alertlst):
+    def send_failure_message(self, failures):
+        text = '{n}件の新しいアラートが上がりました :bomb:'.format(n=len(failures))
+
         attachments = []
 
-        attachments.append({
-            'title': 'Room301_5Gでローカルネットワーク層の障害 :bomb:',
-            'text': 'ローカルネットワーク層では以下の正常性を確認します\n'
-                    '\t• デフォルトGWへのICMP到達性\n',
-            'fallback': 'Room301_5Gでローカルネットワーク層の障害が発生しました',
-            'color': 'danger',
-            'fields': [
-                {
-                    'title': 'V4.PING_GW',
-                    'value': '2019/07/21 22:06:26',
-                    'short': True
-                },
-            ],
-            'footer': 'SINDAN Notifier {version}'.format(Config.Version),
-            'ts': '{timestamp}'.format(timestamp=int(time.time())),
-        })
+        for failure in failures:
+            layer = failure[0]
+            alertlst = failure[1]
+
+            attachments.extend([{
+                'title': '{layer}の障害'.format(layer=DESCRIPTION[layer]),
+                'text': '{layer}では以下の正常性を確認します\n'.format(layer=DESCRIPTION[layer]) +
+                        '\n'.join(map(lambda x: '\t• ' + x, DESCRIPTION[alert['type']])),
+                'fallback': '{layer}の障害'.format(layer=DESCRIPTION[layer]),
+                'color': 'danger',
+                'fields': [{'title': alert['type'], 'value': alert['ts'], 'short': False} for alert in alertlst],
+                'footer': 'SINDAN Notifier {version}'.format(version=Config.Version),
+                'ts': '{timestamp}'.format(timestamp=int(time.time())),
+            } for alert in alertlst])
 
         attachments.append({
             'pretext': '詳細はログデータベースを参照してください',
             'color': '#BBBBBB',
             'actions': [
-                {
-                    'type': 'button',
-                    'text': 'SINDAN Web を開く',
-                    'url': Config.Visualization_URL,
-                    'style': 'primary'
-                },
-                {
-                    'type': 'button',
-                    'text': 'InfluxDB Dashboard を開く',
-                    'url': Config.InfluxDB_URL,
-                    'style': 'primary'
-                },
+                {'type': 'button', 'text': 'SINDAN Web を開く', 'url': Config.Visualization_URL, 'style': 'primary'},
+                {'type': 'button', 'text': 'InfluxDB Dashboard を開く', 'url': Config.InfluxDB_URL, 'style': 'primary'},
             ],
         })
 
-        return self.__post(attachments, text='{n}件の新しいアラートが上がりました'.format(n=len(alertlst)))
+        return self.__post(attachments, text=text)
 
 
 if __name__ == '__main__':

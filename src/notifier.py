@@ -55,21 +55,19 @@ class Watch:
     def __notification_on_failure(self, eventlst):
         if not eventlst:
             return
-        alertlst = []
+        message = []
         for event in eventlst:
             layer = event['layer']
-            alert = []
+            alertlst = []
             for ts in event['ts']:
                 uuid = self.influxdb_cli.read_diagnosis_logs(layer, fieldlst=[DiagnosisKey.UUID], ts=ts)
                 dtype = self.influxdb_cli.read_diagnosis_logs(layer, fieldlst=[DiagnosisKey.TYPE], ts=ts)
-                desc = DESCRIPTION[dtype]
-                alert.append({
+                alertlst.append({
                     'ts': ts,
                     'uuid': uuid,
                     'type': dtype,
-                    'desc': desc
                 })
-            alertlst.append([layer, alert])
+            message.append([layer, alertlst])
         # call slack method here
 
     def __notification_on_recover(self, eventlst):
