@@ -88,13 +88,17 @@ class ResultType:
     INFO    = '10'
 
 
+ShortDesc = lambda key: DESCRIPTION[key][0]
+LongDesc = lambda key: DESCRIPTION[key][1]
+
+
 DESCRIPTION = {
-    LayerType.DATALINK:     'データリンク層',
-    LayerType.INTERFACE:    'インターフェイス層',
-    LayerType.LOCALNET:     'ローカルネットワーク層',
-    LayerType.GLOBALNET:    'グローバルネットワーク層',
-    LayerType.DNS:          '名前解決層',
-    LayerType.WEB:          'ウェブアプリケーション層',
+    LayerType.DATALINK:     ('データリンク層', ('リンク状態の確認')),
+    LayerType.INTERFACE:    ('インターフェイス層', ()),
+    LayerType.LOCALNET:     ('ローカルネットワーク層', ()),
+    LayerType.GLOBALNET:    ('グローバルネットワーク層', ()),
+    LayerType.DNS:          ('名前解決層', ()),
+    LayerType.WEB:          ('ウェブアプリケーション層', ()),
     LogType.IFSTATUS:       '',
     LogType.V4.AUTOCONF:    '',
     LogType.V4.PING_DNS:    '',

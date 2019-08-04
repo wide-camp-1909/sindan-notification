@@ -35,22 +35,16 @@ class Client:
     def send_failure_message(self, failures):
         text = '{n}件の新しいアラートが上がりました :bomb:'.format(n=len(failures))
 
-        attachments = []
-
-        for failure in failures:
-            layer = failure[0]
-            alertlst = failure[1]
-
-            attachments.extend([{
-                'title': '{layer}の障害'.format(layer=DESCRIPTION[layer]),
-                'text': '{layer}では以下の正常性を確認します\n'.format(layer=DESCRIPTION[layer]) +
-                        '\n'.join(map(lambda x: '\t• ' + x, DESCRIPTION[alert['type']])),
-                'fallback': '{layer}の障害'.format(layer=DESCRIPTION[layer]),
+        attachments = [{
+                'title': '{layer}の障害'.format(layer=ShortDesc[layer]),
+                'text': '{layer}では以下の正常性を確認します\n'.format(layer=ShortDesc[layer]) +
+                        '\n'.join(map(lambda x: '\t• ' + x, LongDesc[layer])),
+                'fallback': '{layer}の障害'.format(layer=ShortDesc[layer]),
                 'color': 'danger',
                 'fields': [{'title': alert['type'], 'value': alert['ts'], 'short': False} for alert in alertlst],
                 'footer': 'SINDAN Notifier {version}'.format(version=Config.Version),
                 'ts': '{timestamp}'.format(timestamp=int(time.time())),
-            } for alert in alertlst])
+        } for layer, alertlst in failures]
 
         attachments.append({
             'pretext': '詳細はログデータベースを参照してください',
