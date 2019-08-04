@@ -1,3 +1,4 @@
+from config import Config
 import datetime
 import json
 import os

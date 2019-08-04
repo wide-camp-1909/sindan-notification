@@ -28,6 +28,9 @@ class ConfigParser:
         self.WatchPeriod = content['watch']['period']
         self.Threshold = content['watch']['threshold']
 
+        self.Visualization_URL = content['slack']['urls']['visualization']
+        self.InfluxDB_URL = content['slack']['urls']['influxdb']
+
 
 # Config = ConfigParser('./config.yml')
 Config = ConfigParser(CONFIG_FILE)
