@@ -35,16 +35,16 @@ class Client:
     def send_failure_message(self, failures):
         text = '{n}件の新しいアラートが上がりました :bomb:'.format(n=len(failures))
 
-        for a, b in failures:
-
-         attachments = [{
+        attachments = [{
                 'title': '{layer}の障害'.format(layer=DESCRIPTION[layer].Short),
                 'text': '{layer}では以下の正常性を確認します\n'.format(layer=DESCRIPTION[layer].Short) +
                         '\n'.join(map(lambda x: '\t• ' + x, DESCRIPTION[layer].Long)),
                 'fallback': '{layer}の障害'.format(layer=DESCRIPTION[layer].Short),
                 'color': 'danger',
                 'fields': [{
-                    'title': alert['type'], 'value': '発生: {}'.format(alert['ts']), 'short': False
+                    'title': alert['type'],
+                    'value': '*発生日時:* {ts}\n*UUID:* {uuid}'.format(ts=alert['ts'], uuid=alert['uuid']),
+                    'short': True
                 } for alert in alertlst],
                 'footer': 'SINDAN Notifier {version}'.format(version=Config.Version),
                 'ts': '{timestamp}'.format(timestamp=int(time.time())),
@@ -72,7 +72,10 @@ if __name__ == '__main__':
 
     e1 = [LayerType.LOCALNET, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.PING_GW}]]
     e2 = [LayerType.GLOBALNET, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.PING_WWW}]]
-    e3 = [LayerType.DNS, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.DNS.DU_A}]]
+    e3 = [LayerType.DNS, [
+        {'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.DNS.DU_AAAA},
+        {'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.DNS.V6_AAAA}
+    ]]
     f = [e1, e2, e3]
 
     res = cli.send_failure_message(f)
