@@ -93,12 +93,12 @@ LongDesc = lambda key: DESCRIPTION[key][1]
 
 
 DESCRIPTION = {
-    LayerType.DATALINK:     ('データリンク層', ('リンク状態の確認')),
-    LayerType.INTERFACE:    ('インターフェイス層', ('')),
-    LayerType.LOCALNET:     ('ローカルネットワーク層', ('')),
-    LayerType.GLOBALNET:    ('グローバルネットワーク層', ('')),
-    LayerType.DNS:          ('名前解決層', ('')),
-    LayerType.WEB:          ('ウェブアプリケーション層', ('')),
+    LayerType.DATALINK:     ('データリンク層', ('L2の接続状態', 'Wi-FiのAssociation状態など')),
+    LayerType.INTERFACE:    ('インターフェイス層', ('インターフェイスの自動アドレス設定', 'SLAAC, DHCP, DHCPv6')),
+    LayerType.LOCALNET:     ('ローカルネットワーク層', ('内部ネットワークでの到達性', 'デフォルトGWへのICMP到達性など')),
+    LayerType.GLOBALNET:    ('グローバルネットワーク層', ('外部ネットワークへの到達性', '外部サーバへのICMP到達性など')),
+    LayerType.DNS:          ('名前解決層', ('IPv4の名前解決', 'IPv6の名前解決')),
+    LayerType.WEB:          ('ウェブアプリケーション層', ('外部サーバへのHTTP通信')),
     LogType.IFSTATUS:       ('', ('')),
     LogType.V4.AUTOCONF:    ('', ('')),
     LogType.V4.PING_DNS:    ('', ('')),

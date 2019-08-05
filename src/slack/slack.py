@@ -41,7 +41,9 @@ class Client:
                         '\n'.join(map(lambda x: '\t• ' + x, LongDesc[layer])),
                 'fallback': '{layer}の障害'.format(layer=ShortDesc[layer]),
                 'color': 'danger',
-                'fields': [{'title': alert['type'], 'value': alert['ts'], 'short': False} for alert in alertlst],
+                'fields': [{
+                    'title': alert['type'], 'value': '発生: {}'.format(alert['ts']), 'short': False
+                } for alert in alertlst],
                 'footer': 'SINDAN Notifier {version}'.format(version=Config.Version),
                 'ts': '{timestamp}'.format(timestamp=int(time.time())),
         } for layer, alertlst in failures]
@@ -65,5 +67,11 @@ if __name__ == '__main__':
     # Must to re-generate WebHook URL after debugging
     webhook_url = 'https://hooks.slack.com/services/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'
     cli = Client(webhook_url, 'sindan-dev')
-    res = cli.send_failure_message([None, None, None])
+
+    e1 = [LayerType.LOCALNET, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.PING_GW}]]
+    e2 = [LayerType.GLOBALNET, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.PING_WWW}]]
+    e3 = [LayerType.DNS, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.DNS.DU_A}]]
+    f = [e1, e2, e3]
+
+    res = cli.send_failure_message(f)
     print(res)
