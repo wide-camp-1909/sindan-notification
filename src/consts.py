@@ -88,38 +88,45 @@ class ResultType:
     INFO    = '10'
 
 
-ShortDesc = lambda key: DESCRIPTION[key][0]
-LongDesc = lambda key: DESCRIPTION[key][1]
+"""
+Description
+"""
+
+
+class D:
+    def __init__(self, short_desc, long_desc):
+        self.Short = short_desc
+        self.Long = long_desc
 
 
 DESCRIPTION = {
-    LayerType.DATALINK:     ('データリンク層', ('L2の接続状態', 'Wi-FiのAssociation状態など')),
-    LayerType.INTERFACE:    ('インターフェイス層', ('インターフェイスの自動アドレス設定', 'SLAAC, DHCP, DHCPv6')),
-    LayerType.LOCALNET:     ('ローカルネットワーク層', ('内部ネットワークでの到達性', 'デフォルトGWへのICMP到達性など')),
-    LayerType.GLOBALNET:    ('グローバルネットワーク層', ('外部ネットワークへの到達性', '外部サーバへのICMP到達性など')),
-    LayerType.DNS:          ('名前解決層', ('IPv4の名前解決', 'IPv6の名前解決')),
-    LayerType.WEB:          ('ウェブアプリケーション層', ('外部サーバへのHTTP通信')),
-    LogType.IFSTATUS:       ('', ('')),
-    LogType.V4.AUTOCONF:    ('', ('')),
-    LogType.V4.PING_DNS:    ('', ('')),
-    LogType.V4.PING_GW:     ('', ('')),
-    LogType.V4.PING_WWW:    ('', ('')),
-    LogType.V4.DNS.DU_A:    ('', ('')),
-    LogType.V4.DNS.DU_AAAA: ('', ('')),
-    LogType.V4.DNS.V4_A:    ('', ('')),
-    LogType.V4.DNS.V4_AAAA: ('', ('')),
-    LogType.V4.DNS.V6_A:    ('', ('')),
-    LogType.V4.DNS.V6_AAAA: ('', ('')),
-    LogType.V4.HTTP:        ('', ('')),
-    LogType.V6.AUTOCONF:    ('', ('')),
-    LogType.V6.PING_DNS:    ('', ('')),
-    LogType.V6.PING_GW:     ('', ('')),
-    LogType.V6.PING_WWW:    ('', ('')),
-    LogType.V6.DNS.DU_A:    ('', ('')),
-    LogType.V6.DNS.DU_AAAA: ('', ('')),
-    LogType.V6.DNS.V4_A:    ('', ('')),
-    LogType.V6.DNS.V4_AAAA: ('', ('')),
-    LogType.V6.DNS.V6_A:    ('', ('')),
-    LogType.V6.DNS.V6_AAAA: ('', ('')),
-    LogType.V6.HTTP:        ('', ('')),
+    LayerType.DATALINK:     D('データリンク層', ('L2の接続状態', 'Wi-FiのAssociation状態など')),
+    LayerType.INTERFACE:    D('インターフェイス層', ('インターフェイスの自動アドレス設定', 'SLAAC, DHCP, DHCPv6')),
+    LayerType.LOCALNET:     D('ローカルネットワーク層', ('内部ネットワークでの到達性', 'デフォルトGWへのICMP到達性など')),
+    LayerType.GLOBALNET:    D('グローバルネットワーク層', ('外部ネットワークへの到達性', '外部サーバへのICMP到達性など')),
+    LayerType.DNS:          D('名前解決層', ('IPv4の名前解決', 'IPv6の名前解決')),
+    LayerType.WEB:          D('ウェブアプリケーション層', ('外部サーバへのHTTP通信')),
+    LogType.IFSTATUS:       D('', ('')),
+    LogType.V4.AUTOCONF:    D('', ('')),
+    LogType.V4.PING_DNS:    D('', ('')),
+    LogType.V4.PING_GW:     D('', ('')),
+    LogType.V4.PING_WWW:    D('', ('')),
+    LogType.V4.DNS.DU_A:    D('', ('')),
+    LogType.V4.DNS.DU_AAAA: D('', ('')),
+    LogType.V4.DNS.V4_A:    D('', ('')),
+    LogType.V4.DNS.V4_AAAA: D('', ('')),
+    LogType.V4.DNS.V6_A:    D('', ('')),
+    LogType.V4.DNS.V6_AAAA: D('', ('')),
+    LogType.V4.HTTP:        D('', ('')),
+    LogType.V6.AUTOCONF:    D('', ('')),
+    LogType.V6.PING_DNS:    D('', ('')),
+    LogType.V6.PING_GW:     D('', ('')),
+    LogType.V6.PING_WWW:    D('', ('')),
+    LogType.V6.DNS.DU_A:    D('', ('')),
+    LogType.V6.DNS.DU_AAAA: D('', ('')),
+    LogType.V6.DNS.V4_A:    D('', ('')),
+    LogType.V6.DNS.V4_AAAA: D('', ('')),
+    LogType.V6.DNS.V6_A:    D('', ('')),
+    LogType.V6.DNS.V6_AAAA: D('', ('')),
+    LogType.V6.HTTP:        D('', ('')),
 }

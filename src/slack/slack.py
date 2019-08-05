@@ -35,11 +35,13 @@ class Client:
     def send_failure_message(self, failures):
         text = '{n}件の新しいアラートが上がりました :bomb:'.format(n=len(failures))
 
-        attachments = [{
-                'title': '{layer}の障害'.format(layer=ShortDesc[layer]),
-                'text': '{layer}では以下の正常性を確認します\n'.format(layer=ShortDesc[layer]) +
-                        '\n'.join(map(lambda x: '\t• ' + x, LongDesc[layer])),
-                'fallback': '{layer}の障害'.format(layer=ShortDesc[layer]),
+        for a, b in failures:
+
+         attachments = [{
+                'title': '{layer}の障害'.format(layer=DESCRIPTION[layer].Short),
+                'text': '{layer}では以下の正常性を確認します\n'.format(layer=DESCRIPTION[layer].Short) +
+                        '\n'.join(map(lambda x: '\t• ' + x, DESCRIPTION[layer].Long)),
+                'fallback': '{layer}の障害'.format(layer=DESCRIPTION[layer].Short),
                 'color': 'danger',
                 'fields': [{
                     'title': alert['type'], 'value': '発生: {}'.format(alert['ts']), 'short': False
