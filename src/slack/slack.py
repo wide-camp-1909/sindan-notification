@@ -8,9 +8,11 @@ import time
 
 
 class Client:
-    def __init__(self, webhook_url, channel, debug=False):
+    def __init__(self, webhook_url, channel, visualization_url, influxdb_url, debug=False):
         self.webhook_url = webhook_url
         self.channel = channel
+        self.visualization_url = visualization_url
+        self.influxdb_url = influxdb_url
         self.debug = debug
 
     def __post(self, attachments, text=None, max_retry=3):
@@ -54,8 +56,8 @@ class Client:
             'pretext': '詳細はログデータベースを参照してください',
             'color': '#BBBBBB',
             'actions': [
-                {'type': 'button', 'text': 'SINDAN Web を開く', 'url': Config.Visualization_URL, 'style': 'primary'},
-                {'type': 'button', 'text': 'InfluxDB Dashboard を開く', 'url': Config.InfluxDB_URL, 'style': 'primary'},
+                {'type': 'button', 'text': 'SINDAN Web を開く', 'url': self.visualization_url, 'style': 'primary'},
+                {'type': 'button', 'text': 'InfluxDB Dashboard を開く', 'url': self.influxdb_url, 'style': 'primary'},
             ],
         })
 

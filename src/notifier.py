@@ -22,7 +22,8 @@ class Watch:
         self.threshold = watch_params['threshold']
         self.influxdb_cli = influxdb2.Client(db_params['db'], db_params['token'], db_params['organization'],
                                              db_params['bucket_diagnosis'], db_params['bucket_health'], debug=debug)
-        self.slack_cli = slack.Client(slack_params['webhook_url'], slack_params['channel'], debug=False)
+        self.slack_cli = slack.Client(slack_params['webhook_url'], slack_params['channel'],
+                                      slack_params['visualization_url'],  slack_params['influxdb_url'], debug=False)
         self.debug = debug
 
     def __update_health_status(self):
@@ -68,7 +69,7 @@ class Watch:
                     'type': dtype,
                 })
             message.append([layer, alertlst])
-        # call slack method here
+        self.slack_cli.send_failure_message(message)
 
     def __notification_on_recover(self, eventlst):
         if not eventlst:
