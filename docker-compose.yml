@@ -77,6 +77,25 @@ services:
     labels:
       com.sindan-net.description: "Receive raw logs via HTTP and forward processed logs to InfluxDB"
 
+  notification:
+    image: mi2428/sindan-notification:latest
+    build:
+      context: .
+    hostname: sindan-notification
+    restart: always
+    secrets:
+      - config
+    environment:
+      CONFIG_FILE: "/run/secrets/config"
+    # healthcheck:
+    #   <<: *default-healthcheck
+    #   test: curl -f http://127.0.0.1:8000 || exit 1
+    logging: *default-logging
+    volumes:
+      - ./src:/app
+    labels:
+      com.sindan-net.description: "Watch diagnosis results and notify when something happens."
+
 secrets:
   config:
     file: config.yml

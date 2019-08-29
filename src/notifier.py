@@ -74,7 +74,7 @@ class Watch:
     def __notification_on_recover(self, eventlst):
         if not eventlst:
             return
-        # call slack method here
+        # TBD: call slack method here
 
     def run(self):
         while True:
