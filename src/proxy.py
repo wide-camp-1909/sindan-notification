@@ -62,6 +62,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 class ProxyServer:
     def __init__(self, ip='0.0.0.0', port=8000):
+        print("Proxy started.")
         ThreadingHTTPServer((ip, port), RequestHandler).serve_forever()
 
 

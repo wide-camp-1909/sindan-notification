@@ -34,5 +34,5 @@ class ConfigParser:
         self.InfluxDB_URL = content['slack']['urls']['influxdb']
 
 
-Config = ConfigParser('../../config.yml')  # development
-# Config = ConfigParser(CONFIG_FILE)
+# Config = ConfigParser('../../config.yml')  # development
+Config = ConfigParser(CONFIG_FILE)

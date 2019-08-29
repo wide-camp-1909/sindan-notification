@@ -5,7 +5,8 @@ ENV LANG C.UTF-8
 WORKDIR /app
 
 COPY ./src .
+RUN apk --no-cache add curl
 RUN pip install pipenv \
- && pipenv install --system
+ && pipenv install system
 
 CMD ["pipenv", "run", "notifyer"]
