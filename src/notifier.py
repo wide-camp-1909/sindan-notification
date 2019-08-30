@@ -23,7 +23,7 @@ class Watch:
         self.influxdb_cli = influxdb2.Client(db_params['db'], db_params['token'], db_params['organization'],
                                              db_params['bucket_diagnosis'], db_params['bucket_health'], debug=debug)
         self.slack_cli = slack.Client(slack_params['webhook_url'], slack_params['channel'],
-                                      slack_params['visualization_url'],  slack_params['influxdb_url'], debug=False)
+                                      slack_params['visualization_url'],  slack_params['influxdb_url'], debug=debug)
         self.debug = debug
 
     def __update_health_status(self):
@@ -31,7 +31,12 @@ class Watch:
         statuslst = []
         time_range = '-{period}'.format(period=self.watch_period)
         for layer in LayerType.TypeList:
-            last_st = self.influxdb_cli.read_health_status(layer, time_range, limit=1)[0]['status']
+            res = self.influxdb_cli.read_health_status(layer, time_range, limit=1)
+            if len(res) == 0:
+                last_st = HealthStatus.GREEN
+                self.influxdb_cli.write_health_status([(layer, last_st)])
+            else:
+                last_st = res[0]['_value']
             result_failed = self.influxdb_cli.read_diagnosis_logs(layer, time_range,
                                                                   [DiagnosisKey.RESULT], [ResultType.FAIL])
             if len(result_failed) < self.threshold:
@@ -79,18 +84,17 @@ class Watch:
     def run(self):
         while True:
             rt = self.__update_health_status()
-            if not rt:
-                continue
-            self.__notification_on_failure([event for event in rt if event['trigger'] == AlertTrigger.FAILURE])
-            self.__notification_on_recover([event for event in rt if event['trigger'] == AlertTrigger.RECOVER])
+            if rt:
+                self.__notification_on_failure([event for event in rt if event['trigger'] == AlertTrigger.FAILURE])
+                self.__notification_on_recover([event for event in rt if event['trigger'] == AlertTrigger.RECOVER])
             time.sleep(self.watch_interval)
 
 
 class Notifier:
     def __init__(self, debug=False):
         watch_params = {
-            'interval': Config.WatchPeriod,
-            'period': Config.WatchInterval,
+            'interval': Config.WatchInterval,
+            'period': Config.WatchPeriod,
             'threshold': Config.Threshold,
         }
         db_params = {
@@ -110,4 +114,4 @@ class Notifier:
 
 
 if __name__ == '__main__':
-    Notifier()
+    Notifier(debug=True)

@@ -84,12 +84,12 @@ class Client:
 
     def write_health_status(self, statuslst):
         for layer, status in statuslst:
-            ok, response = self.__write(self.bucket_health, layer, ('status', status))
+            ok, response = self.__write(self.bucket_health, layer, [('status', status)])
             if ok and self.debug:
                 print('InfluxDB2.Client.write_health_status:', response)
 
     def read_health_status(self, layer, time_range='-5m', limit=None):
-        filterlst = [('_measurement', layer)]
+        filterlst = [('_measurement', layer), ('_field', 'status')]
         ok, response = self.__read(self.bucket_health, time_range, filterlst, limit)
         if ok and self.debug:
             print('InfluxDB2.Client.read_health_status:', response)
