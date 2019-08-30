@@ -103,6 +103,8 @@ class Notifier:
         slack_params = {
             'webhook_url': Config.Slack_WebhookURL,
             'channel': Config.Slack_Channel,
+            'visualization_url': Config.Visualization_URL,
+            'influxdb_url': Config.InfluxDB_URL,
         }
         Watch(watch_params=watch_params, db_params=db_params, slack_params=slack_params, debug=debug).run()
 
