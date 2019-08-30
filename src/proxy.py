@@ -51,9 +51,11 @@ class RequestHandler(BaseHTTPRequestHandler):
     def __diagnosis(self, jbody):
         if jbody[DiagnosisKey.RESULT] == ResultType.INFO:
             return
-        self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], [
-            (k, jbody[k]) for k in [DiagnosisKey.UUID, DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.OCCURR]
-        ])
+        sendkeys = [
+            DiagnosisKey.GROUP, DiagnosisKey.TYPE, DiagnosisKey.UUID,
+            DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.DETAIL, DiagnosisKey.OCCURR
+        ]
+        self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], [(k, jbody[k]) for k in sendkeys])
         return
 
     def __campaign(self, jbody):

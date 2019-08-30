@@ -61,17 +61,20 @@ class Watch:
     def __notification_on_failure(self, eventlst):
         if not eventlst:
             return
+        time_range = '-{period}'.format(period=self.watch_period)
         message = []
         for event in eventlst:
             layer = event['layer']
             alertlst = []
             for ts in event['ts']:
-                uuid = self.influxdb_cli.read_diagnosis_logs(layer, fieldlst=[DiagnosisKey.UUID], ts=ts)
-                dtype = self.influxdb_cli.read_diagnosis_logs(layer, fieldlst=[DiagnosisKey.TYPE], ts=ts)
+                uuid = self.influxdb_cli.read_diagnosis_logs(layer, time_range=time_range,
+                                                             fieldlst=[DiagnosisKey.UUID], ts=ts)
+                dtype = self.influxdb_cli.read_diagnosis_logs(layer, time_range=time_range,
+                                                              fieldlst=[DiagnosisKey.TYPE], ts=ts)
                 alertlst.append({
                     'ts': ts,
-                    'uuid': uuid,
-                    'type': dtype,
+                    'uuid': uuid['_value'],
+                    'type': dtype['_value'],
                 })
             message.append([layer, alertlst])
         self.slack_cli.send_failure_message(message)
