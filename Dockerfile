@@ -9,4 +9,4 @@ RUN apk --no-cache add curl
 RUN pip install pipenv \
  && pipenv install system
 
-CMD ["pipenv", "run", "notifyer"]
+CMD ["pipenv", "run", "notifier"]
