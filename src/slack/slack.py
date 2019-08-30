@@ -24,18 +24,31 @@ class Client:
         if text is not None:
             payload['text'] = text
 
-        while max_retry > 0:
-            try:
-                response = requests.post(self.webhook_url, data=json.dumps(payload))
-            except requests.exceptions.Timeout:
-                max_retry -= 1
-                continue
-            else:
-                return True, response
-        return False, None
+        """debug: begin"""
+        print(self.webhook_url, payload)
+        response = requests.post(self.webhook_url, data=json.dumps(payload))  # develop
+        print(response)
+        """debug: end"""
+
+        # while max_retry > 0:
+        #     try:
+        #         """debug: begin"""
+        #         print(json.dumps(payload))
+        #         """debug: end"""
+        #         response = requests.post(self.webhook_url, data=json.dumps(payload))
+        #     except requests.exceptions.Timeout:
+        #         max_retry -= 1
+        #         continue
+        #     else:
+        #         return True, response
+        # return False, None
 
     def send_failure_message(self, failures):
         text = '{n}件の新しいアラートが上がりました :bomb:'.format(n=len(failures))
+
+        """debug: begin"""
+        print(failures)
+        """debug: end"""
 
         attachments = [{
                 'title': '{layer}の障害'.format(layer=DESCRIPTION[layer].Short),
@@ -70,7 +83,7 @@ class Client:
 if __name__ == '__main__':
     # Must to re-generate WebHook URL after debugging
     webhook_url = 'https://hooks.slack.com/services/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'
-    cli = Client(webhook_url, 'sindan-dev')
+    cli = Client(webhook_url, 'sindan-dev', 'http://169.254.169.254/', 'http://169.254.169.254/')
 
     e1 = [LayerType.LOCALNET, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.PING_GW}]]
     e2 = [LayerType.GLOBALNET, [{'ts': '8/5 11:25:32', 'uuid': 'qwerty', 'type': LogType.V4.PING_WWW}]]
