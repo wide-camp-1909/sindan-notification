@@ -24,30 +24,24 @@ class Client:
         if text is not None:
             payload['text'] = text
 
-        """debug: begin"""
-        print(self.webhook_url, payload)
-        response = requests.post(self.webhook_url, data=json.dumps(payload))  # develop
-        print(response)
-        """debug: end"""
-
-        # while max_retry > 0:
-        #     try:
-        #         """debug: begin"""
-        #         print(json.dumps(payload))
-        #         """debug: end"""
-        #         response = requests.post(self.webhook_url, data=json.dumps(payload))
-        #     except requests.exceptions.Timeout:
-        #         max_retry -= 1
-        #         continue
-        #     else:
-        #         return True, response
-        # return False, None
+        while max_retry > 0:
+            try:
+                """debug: begin"""
+                print(json.dumps(payload))
+                """debug: end"""
+                response = requests.post(self.webhook_url, data=json.dumps(payload))
+            except requests.exceptions.Timeout:
+                max_retry -= 1
+                continue
+            else:
+                return True, response
+        return False, None
 
     def send_failure_message(self, failures):
         text = '{n}件の新しいアラートが上がりました :bomb:'.format(n=len(failures))
 
         """debug: begin"""
-        print(failures)
+        print("failures:", failures)
         """debug: end"""
 
         attachments = [{

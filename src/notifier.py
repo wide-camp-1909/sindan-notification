@@ -32,6 +32,9 @@ class Watch:
         time_range = '-{period}'.format(period=self.watch_period)
         for layer in LayerType.TypeList:
             res = self.influxdb_cli.read_health_status(layer, time_range, limit=1)
+            """debug begin"""
+            print("\nres:", res, "\n")
+            """debug end"""
             if len(res) == 0:
                 last_st = HealthStatus.GREEN
                 self.influxdb_cli.write_health_status([(layer, last_st)])
@@ -61,6 +64,10 @@ class Watch:
     def __notification_on_failure(self, eventlst):
         if not eventlst:
             return
+        """debug begin"""
+        print("\nSlack notification:\n")
+        return
+        """debug end"""
         time_range = '-{period}'.format(period=self.watch_period)
         message = []
         for event in eventlst:
