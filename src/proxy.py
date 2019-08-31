@@ -53,7 +53,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
         sendkeys = [
             DiagnosisKey.GROUP, DiagnosisKey.TYPE, DiagnosisKey.UUID,
-            DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.DETAIL, DiagnosisKey.OCCURR
+            DiagnosisKey.RESULT, DiagnosisKey.TARGET, DiagnosisKey.OCCURR
         ]
         self.influxdb_cli.write_diagnosis_logs(jbody[DiagnosisKey.LAYER], [(k, jbody[k]) for k in sendkeys])
         return
