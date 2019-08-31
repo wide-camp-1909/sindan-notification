@@ -27,7 +27,7 @@ class Client:
         return False, None
 
     @staticmethod
-    def __build_ifql(bucket, time_range, filterlst=None, limit=None):
+    def __build_ifql(bucket, time_range, filterlst=None, reverse=False, limit=None):
         ifql = [
             'from(bucket: "{bucket}")'.format(bucket=bucket),
             'range(start:{range})'.format(range=time_range)
@@ -35,6 +35,8 @@ class Client:
         if filterlst is not None:
             for f in filterlst:
                 ifql.append('filter(fn: (r) => r.{key} == "{value}")'.format(key=f[0], value=f[1]))
+        if reverse is True:
+            ifql.append('sort(columns: ["_time"], desc: true)')
         if limit is not None:
             ifql.append('limit(n:{limit})'.format(limit=limit))
         return ' |> '.join(ifql)
@@ -67,7 +69,7 @@ class Client:
             print('InfluxDB2.Client.__write:', line_protocol)
         return self.__post_requests(endpoint, headers=headers, params=params, data=line_protocol)
 
-    def __read(self, bucket, time_range='-1m', filterlst=None, limit=None):
+    def __read(self, bucket, time_range='-1m', filterlst=None, reverse=None, limit=None):
         endpoint = 'http://{db}:9999/api/v2/query'.format(db=self.db)
         headers = {
             'Authorization': 'Token {token}'.format(token=self.token),
@@ -77,7 +79,7 @@ class Client:
         params = [
             ('org', self.organization)
         ]
-        query = self.__build_ifql(bucket, time_range, filterlst=filterlst, limit=limit)
+        query = self.__build_ifql(bucket, time_range, filterlst=filterlst, reverse=reverse, limit=limit)
         if self.debug:
             print('InfluxDB2.Client.__read:', query)
         return self.__post_requests(endpoint, headers=headers, params=params, data=query)
@@ -90,7 +92,10 @@ class Client:
 
     def read_health_status(self, layer, time_range='-5m', limit=None):
         filterlst = [('_measurement', layer), ('_field', 'status')]
-        ok, response = self.__read(self.bucket_health, time_range, filterlst, limit)
+        reverse_flag = False
+        if limit is not None:
+            reverse_flag = True
+        ok, response = self.__read(self.bucket_health, time_range, filterlst, reverse_flag, limit)
         if ok and self.debug:
             print('InfluxDB2.Client.read_health_status:', response)
         return self.__parse_csv_response(response.content.decode('utf-8'))
@@ -102,11 +107,14 @@ class Client:
 
     def read_diagnosis_logs(self, layer, time_range='-5m', fieldlst=None, valuelst=None, ts=None, limit=None):
         filterlst = [('_measurement', layer)]
+        reverse_flag = False
         if fieldlst is not None:
             filterlst.extend([('_field', field) for field in fieldlst])
         if valuelst is not None:
             filterlst.extend([('_value', val) for val in valuelst])
-        ok, response = self.__read(self.bucket_diagnosis, time_range, filterlst, limit)
+        if limit is not None:
+            reverse_flag = True
+        ok, response = self.__read(self.bucket_diagnosis, time_range, filterlst, reverse_flag, limit)
         if ok and self.debug:
             print('InfluxDB2.Client.read_diagnosis_logs:', response)
         result = self.__parse_csv_response(response.content.decode('utf-8'))
