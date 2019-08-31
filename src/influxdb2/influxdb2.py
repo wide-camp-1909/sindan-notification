@@ -118,7 +118,6 @@ class Client:
         if ok and self.debug:
             print('InfluxDB2.Client.read_diagnosis_logs:', response)
         result = self.__parse_csv_response(response.content.decode('utf-8'))
-        print(result)
         if ts is not None:
             for r in result:
                 if r['_time'] == ts:

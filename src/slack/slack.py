@@ -26,9 +26,6 @@ class Client:
 
         while max_retry > 0:
             try:
-                """debug: begin"""
-                print(json.dumps(payload))
-                """debug: end"""
                 response = requests.post(self.webhook_url, data=json.dumps(payload))
             except requests.exceptions.Timeout:
                 max_retry -= 1
@@ -39,11 +36,6 @@ class Client:
 
     def send_failure_message(self, failures):
         text = '{n}件の新しいアラートが上がりました :bomb:'.format(n=len(failures))
-
-        """debug: begin"""
-        print("failures:", failures)
-        """debug: end"""
-
         attachments = [{
                 'title': '{layer}の障害'.format(layer=DESCRIPTION[layer].Short),
                 'text': '{layer}では以下の正常性を確認します\n'.format(layer=DESCRIPTION[layer].Short) +
