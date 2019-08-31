@@ -50,8 +50,11 @@ services:
     #   test: curl -I -f http://127.0.0.1:9999 || exit 1
     logging: *default-logging
     command: --reporting-disabled
+    # command: influxd run --bolt-path /var/lib/inflxudb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store bolt --reporting-disabled
+    # volumes:
+    #   - 'influxdb-data:/var/lib/influxdb2'
     volumes:
-      - 'influxdb-data:/var/lib/influxdb'
+      - 'influxdb-data:/root/.influxdbv2'
     labels:
       com.sindan-net.description: "Store diagnosis logs for sindan-notification"
 
@@ -77,7 +80,7 @@ services:
     labels:
       com.sindan-net.description: "Receive raw logs via HTTP and forward processed logs to InfluxDB"
 
-  notification:
+  notifier:
     image: mi2428/sindan-notification:latest
     build:
       context: .
@@ -103,3 +106,4 @@ secrets:
 volumes:
   fluentd-data:
   influxdb-data:
+  influxdb-config:
